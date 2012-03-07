@@ -1,10 +1,13 @@
 var jsdom = require('jsdom').jsdom,
-    sys = require('sys'),
     http = require('http'),
     mongoose = require("mongoose"),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    Log = require("log"),
+    log = new Log(Log.DEBUG);
 
 mongoose.connect("mongodb://localhost/train");
+
+/** mongodb schema definition **/
 
 var TrainInfo = new Schema({
     start: String,
@@ -29,23 +32,17 @@ mongoose.model('Info', Info);
 Train = mongoose.model('Train');
 Info = mongoose.model('Info');
 
-function show(name, data) {
-    console.log("-----" + name + "-----");
-    console.log(data);
-    console.log("---------------");
-//    Train.find({}, function (err, docs) {
-//        console.log(docs);
-//    });
-}
+/** schema definition ended ***/
 
 var lastRefleshed = new Date(70, 0, 1, 9, 0, 0);
+
 function init() {
+
   Info.find({}, function(err, docs) {
-    console.log(docs);
+
     var item;
     if (docs.length === 0) {
       item = new Info();
-      console.log("new: " + lastRefleshed);
     }
     else {
       item = docs[0]
@@ -53,9 +50,11 @@ function init() {
     }
     item["last-up-date"] = new Date();
     item.save(function (err) {
-      if (err) console.log(err);
+      if (err) log.ERROR(err);
     });
-    console.log("last up date is " + lastRefleshed);
+
+    log.debug("last up date is " + lastRefleshed);
+
     var metro = [
         "ginza", "marunouchi", "hibiya", "touzai", "chiyoda",
         "yurakucho", "hanzoumon", "nanboku", "fukutoshin"
@@ -79,21 +78,26 @@ function getDelayData(name) {
         var body = "";
         var lastModified = new Date(res.headers["last-modified"]);
         if (lastModified > lastRefleshed) {
-            console.log("***[" + name + "] is modified");
+            log.debug("***[" + name + "] is modified");
         }
         else {
-          console.log("***[" + name + "] is updated");
+          log.debug("***[" + name + "] is updated");
           return;
         }
         res.on('data', function (data) {
             body += data;
         });
         res.on('end', function () {
-//            console.log(body);
-            var document = jsdom(body),
+
+            var document = jsdom(body, null, {features: {
+                    FetchExternalResources: false,
+                    ProcessExternalResources: false
+                }}),
                 table = document.getElementsByTagName("table")[0],
                 events = table.getElementsByTagName("tr");
+
             Train.find({name: name}, function (err, docs) {
+
                 var train;
                 if (docs.length === 0) {
                   train = new Train();
@@ -102,6 +106,7 @@ function getDelayData(name) {
                 else {
                   train = docs[0];
                 }
+
                 var tinfo = {};
                 for (var i = 1; i < events.length; i ++) {
                     var event = events[i],
@@ -119,7 +124,8 @@ function getDelayData(name) {
                     date_obj.setDate(date[2]);
                     date_obj.setHours(clock[1]);
                     date_obj.setMinutes(clock[2]);
-                    console.log("date : " + date_obj);
+                    log.debug("occured date : " + date_obj);
+
                     if (date_obj < lastRefleshed) {
                       break;
                     }
@@ -137,10 +143,11 @@ function getDelayData(name) {
                     tinfo["start"] = clock[1] + ":" + clock[2];
                     tinfo["start-date"] = date[1] + "/" + date[2];
                 }
+
                 train.info.push(tinfo);
                 info.push(tinfo);
                 train.save(function (err) {
-                    if (err) console.log(err);
+                    if (err) log.error(err);
                 });
             });
         });
