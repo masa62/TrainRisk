@@ -31,13 +31,14 @@ Train = mongoose.model('Train');
 Info = mongoose.model('Info');
 
 Info.find({}, function (err, docs) {
-  var info = docs[0];
-  docs[0]["first-logging-date"] = new Date(2012, 2-1, 6);
-  docs[0].save();
+  var info = docs[0] || new Info();
+  info["first-logging-date"] = new Date(2012, 2-1, 6);
+  info["last-up-date"] = new Date(2000, 0, 1);
+  info.save();
 });
 
 Train.find({name: "ginza"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 14.3;
   train["avr-passenger"] = 1016;
   train.count = 360;
@@ -54,7 +55,7 @@ Train.find({name: "ginza"}, function (err, docs) {
 });
 
 Train.find({name: "marunouchi"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 27.4;
   train["avr-passenger"] = 1067;
   train.count = 336;
@@ -71,7 +72,7 @@ Train.find({name: "marunouchi"}, function (err, docs) {
 });
 
 Train.find({name: "hibiya"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 20.3;
   train["avr-passenger"] = 1063;
   train.count = 284;
@@ -88,7 +89,7 @@ Train.find({name: "hibiya"}, function (err, docs) {
 });
 
 Train.find({name: "touzai"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 30.8;
   train["avr-passenger"] = 1218;
   train.count = 286;
@@ -105,7 +106,7 @@ Train.find({name: "touzai"}, function (err, docs) {
 });
 
 Train.find({name: "chiyoda"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 24.0;
   train["avr-passenger"] = 1050;
   train.count = 234;
@@ -122,7 +123,7 @@ Train.find({name: "chiyoda"}, function (err, docs) {
 });
 
 Train.find({name: "yurakucho"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 28.3;
   train["avr-passenger"] = 779;
   train.count = 200;
@@ -139,7 +140,7 @@ Train.find({name: "yurakucho"}, function (err, docs) {
 });
 
 Train.find({name: "fukutoshin"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 11.9;
   train["avr-passenger"] = 0;
   train.count = 200;
@@ -156,7 +157,7 @@ Train.find({name: "fukutoshin"}, function (err, docs) {
 });
 
 Train.find({name: "hanzoumon"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   if (!train) {
     train = new Train();
     train.name = "hanzoumon";
@@ -177,7 +178,7 @@ Train.find({name: "hanzoumon"}, function (err, docs) {
 });
 
 Train.find({name: "nanboku"}, function (err, docs) {
-  var train = docs[0];
+  var train = docs[0] || new Train();
   train.len = 21.3;
   train["avr-passenger"] = 382;
   train.count = 180;

@@ -34,12 +34,14 @@ Info = mongoose.model('Info');
 
 /** schema definition ended ***/
 
+
 var lastRefleshed = new Date(70, 0, 1, 9, 0, 0);
 
 function init() {
 
   Info.find({}, function(err, docs) {
 
+    //log.debug(docs);
     var item;
     if (docs.length === 0) {
       item = new Info();
@@ -74,6 +76,7 @@ function getDelayData(name) {
       path: '/unkou/history/' + name + '.html'
     };
 
+  console.log(options);
   http.get(options, function (res) {
     var body = "";
     var lastModified = new Date(res.headers["last-modified"]);
@@ -108,6 +111,7 @@ function getDelayData(name) {
         }
 
         var tinfo = {};
+        console.log(events.length);
         for (var i = 1; i < events.length; i ++) {
           var event = events[i],
               tds = event.getElementsByTagName("td"),
@@ -132,6 +136,10 @@ function getDelayData(name) {
           if (isnormal) {
             if (i != 1) {
               train.info.push(tinfo);
+              train.save(function (err) {
+                if (err) console.log("error while saving");
+                else console.log("save done!!");
+              });
               info.push(tinfo);
             }
             tinfo = {};
@@ -139,18 +147,24 @@ function getDelayData(name) {
             tinfo["end-date"] = date[1] + "/" + date[2];
             continue;
           }
-          tinfo["cause"] = status;
-          tinfo["start"] = clock[1] + ":" + clock[2];
-          tinfo["start-date"] = date[1] + "/" + date[2];
+          else {
+            if (i != 1) {
+              tinfo["cause"] = status;
+              console.log(status);
+              tinfo["start"] = clock[1] + ":" + clock[2];
+              tinfo["start-date"] = date[1] + "/" + date[2];
+            }
+          }
         }
-
-        train.info.push(tinfo);
-        if (!tinfo.start) {
-         return;
+        console.log(tinfo);
+        if (tinfo.start) {
+          console.log(tinfo);
+          train.info.push(tinfo);
+          info.push(tinfo);
         }
-        info.push(tinfo);
         train.save(function (err) {
           if (err) log.error(err);
+          else console.log("save done!!");
         });
       });
     });

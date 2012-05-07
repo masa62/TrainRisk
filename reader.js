@@ -1,6 +1,5 @@
 var jsdom = require('jsdom').jsdom,
-    sys = require('sys'),
-    http = require('http'),
+    sys = require('util'),
     mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
@@ -32,3 +31,4 @@ Train.find({}, function (err, docs) {
       console.log(docs);;
     });
 });
+
