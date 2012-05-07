@@ -32,7 +32,7 @@ Info = mongoose.model('Info');
 
 Info.find({}, function (err, docs) {
   var info = docs[0] || new Info();
-  info["first-logging-date"] = new Date(2012, 2-1, 6);
+  info["first-logging-date"] = new Date(2012, 3, 3);
   info["last-up-date"] = new Date(2000, 0, 1);
   info.save();
 });
