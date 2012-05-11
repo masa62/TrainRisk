@@ -119,11 +119,14 @@ function getDelayData(name) {
               cause = tds[1],
               date = time.firstChild.textContent.match(/(\d+)月(\d+)日/),
               clock = time.childNodes[1].textContent.match(/(\d+)時(\d+)分/),
-              isnormal = cause.textContent.indexOf("【") == -1,
+              isnormal = cause.textContent.indexOf("【") === -1,
               text = cause.childNodes[0].textContent,
               status = isnormal? "平常" : text.slice(1, text.length-1),
               match = cause.textContent.match(/(\d+)時(\d+)分/),
               date_obj = new Date();
+          if (isnormal && cause.textContent.indexOf("平常") === -1) {
+            continue;
+          }
           date_obj.setMonth(date[1]-1);
           date_obj.setDate(date[2]);
           date_obj.setHours(clock[1]);
